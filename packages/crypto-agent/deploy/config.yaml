@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crypto-veramo-agent-cm
+data:
+  POSTGRES_USER: micacao
+  POSTGRES_PORT: "5432"
+  POSTGRES_HOST: micacao-pg
+  POSTGRES_DB: micacao
+  DOCS_URL: /api-docs
+  REDOC_URL: /re-docs
+  ALGORITHM: HS256
+  OBJECTIVE_GROUP: "producers"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "1800"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: helvetas-dev
+  name: micacao-pg-pwd
+type: Opaque
+data:
+  password: VXNfSFFRLWdjZW1IMDVhN0lrCg==
+  SECRET_KEY: ZDJRemVHZFJMVlk1YVVOMFVubGtSMEZaQ2c9PQo=
+  KAFE_SISTEMAS_KEY: ZmVjOWVlY2Y0M2FjMmY3NWYzZjZmM2VkYzcwYmNhZjA0MzcyOTQwOWZjMmZhZWVlOGNlNjgyMWQ1NjY2YzJlNAo=

@@ -1,0 +1,61 @@
+version: '3'
+services:
+  identi-service:
+    build:
+      context: ./packages/identi-agent
+      dockerfile: Dockerfile.dev
+    stdin_open: true
+    tty: true
+    ports:
+      - 3330:3330
+    volumes:
+      - ./packages/identi-agent:/app
+    networks:
+      - identi-network
+
+  did-agent:
+    build:
+      context: ./packages/did-agent
+      dockerfile: Dockerfile.dev
+    stdin_open: true
+    tty: true
+    ports:
+      - 3331:3331
+    env_file:
+      - ./packages/did-agent/.env
+    command: [ "yarn", "veramo", "server", "--config=/config/agent-local.yml" ]
+    volumes:
+      - ./packages/did-agent/config:/config
+      - ./packages/did-agent:/usr/src/app
+    networks:
+      - identi-network
+
+  crypto-agent:
+    build:
+      context: ./packages/crypto-agent
+      dockerfile: Dockerfile.dev
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./packages/crypto-agent:/app
+    ports:
+      - 3332:3332
+    networks:
+      - identi-network
+
+  identi-front:
+    stdin_open: true
+    container_name: identi-front
+    build:
+      context: ./packages/identi-front
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3333:3003
+    volumes:
+      - ./packages/identi-front:/var/front
+    networks:
+      - identi-network
+
+networks:
+  identi-network:
+    driver: bridge

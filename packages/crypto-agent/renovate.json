@@ -1,0 +1,17 @@
+{
+  "extends": ["config:base", "group:allNonMajor", "schedule:earlyMondays"],
+  "labels": ["maintenance"],
+  "automergeType": "branch",
+  "automerge": true,
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["^@veramo"],
+      "groupName": "veramo-next-dependencies",
+      "followTag": "next"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "devDeps"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+    "login_page": {
+        "overlay": {
+            "title": "SISTEMA DE TRAZABILIDAD PARA GESTIONAR DE MANERA EFICAZ EL PROCESO DE PRODUCCIÓN Y COMERCIALIZACIÓN DEL CAFÉ.",
+            "description": "Con base en la tecnología blockchain, este sistema permite almacenar información de manera inmutable y compartirla de forma verificable con toda la cadena."
+        },
+        "login":{
+            "user": "Usuario",
+            "password": "Contraseña",
+            "remember_text": "¿No recuerda su clave?",
+            "remember_link": "Restaure Aquí!",
+            "button_login": "Ingresar"
+        }
+    }
+}
