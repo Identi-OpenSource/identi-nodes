@@ -120,11 +120,8 @@ web_modules/
 
 # dotenv environment variables file
 .env
-.env.develop
-.env.test
-.env.production
-.env.stage
-.env.prod
+.env.*
+!.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -181,3 +178,5 @@ db
 .idea/
 build
 .idea/
+
+.npmrc

@@ -1,16 +1,14 @@
 {
-  "name": "identi-agent",
+  "name": "persons-node",
   "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "identi-agent:start": "npm run nodemon --workspace=identi-agent"
-  },
-  "keywords": [],
-  "author": "",
+  "description": "Persons node",
   "license": "ISC",
+  "scripts": {
+    "start": "NODE_ENV=production yarn veramo server --config=./config/agent.yml",
+    "dev": "yarn veramo server --config=./config/agent-local.yml",
+    "secret": "yarn veramo config create-secret-key"
+  },
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "@veramo/cli": "6.0.0"
   }
 }

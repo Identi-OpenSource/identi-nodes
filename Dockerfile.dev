@@ -1,0 +1,16 @@
+FROM node:20
+
+WORKDIR /usr/src/app
+
+COPY . .
+
+ADD config config
+
+RUN npm install
+
+EXPOSE 3330
+
+# CMD ["npm", "run", "dev"]
+
+RUN chmod 775 /usr/src/app/run.sh
+CMD [ "sh","/usr/src/app/run.sh" ]
