@@ -184,9 +184,17 @@ DIDComm Messaging is a secure, private communication methodology built on decent
 
 ### Connect your DID to the Identi Mediator DID
 
+Libraries you need to install:
+
+```bash
+npm install @veramo/core @veramo/remote-client @veramo/did-comm
+```
+
 1. Configure script for execute ts file
 
    ```js
+   import { createAgent } from '@veramo/core'
+   import { AgentRestClient } from '@veramo/remote-client'
    const response = await fetch(`${AGENT_BASE_URL}/open-api.json`)
    const agent = createAgent({
      plugins: [
@@ -206,6 +214,14 @@ DIDComm Messaging is a secure, private communication methodology built on decent
 2. Create mediator connection
 
    ```js
+   import {
+     CoordinateMediation,
+     createV3DeliveryRequestMessage,
+     createV3MediateRequestMessage,
+     createV3RecipientQueryMessage,
+     createV3RecipientUpdateMessage,
+   } from '@veramo/did-comm'
+
    const createMediatorConnection = async (recipientDID: any) => {
      try {
        // Create mediate request
@@ -263,46 +279,43 @@ DIDComm Messaging is a secure, private communication methodology built on decent
 
    ```js
    const ensureMediationGranted = async (recipientDID: string) => {
-     const request = createV3MediateRequestMessage(recipientDID, mediatorDID);
+     const request = createV3MediateRequestMessage(recipientDID, mediatorDID)
      const packedRequest = await agent.packDIDCommMessage({
        packing: 'authcrypt',
        message: request,
-     });
+     })
      const mediationResponse = await agent.sendDIDCommMessage({
        packedMessage: packedRequest,
        recipientDidUrl: mediatorDID,
        messageId: request.id,
-     });
+     })
 
-   if (
-       mediationResponse.returnMessage?.type !== CoordinateMediation.MEDIATE_GRANT
-     ) {
-       throw new Error('mediation not granted');
+     if (mediationResponse.returnMessage?.type !== CoordinateMediation.MEDIATE_GRANT) {
+       throw new Error('mediation not granted')
      }
      const update = createV3RecipientUpdateMessage(recipientDID, mediatorDID, [
        {
          recipient_did: recipientDID,
          action: UpdateAction.ADD,
        },
-     ]);
+     ])
      const packedUpdate = await agent.packDIDCommMessage({
        packing: 'authcrypt',
        message: update,
-     });
+     })
      const updateResponse = await agent.sendDIDCommMessage({
        packedMessage: packedUpdate,
        recipientDidUrl: mediatorDID,
        messageId: update.id,
-     });
+     })
 
-   if (
-       updateResponse.returnMessage?.type !==
-         CoordinateMediation.RECIPIENT_UPDATE_RESPONSE ||
-       (updateResponse.returnMessage?.data as any)?.updates[0].result !== 'success'
+     if (
+       updateResponse.returnMessage?.type !== CoordinateMediation.RECIPIENT_UPDATE_RESPONSE ||
+       updateResponse.returnMessage?.data?.updates[0].result !== 'success'
      ) {
-       throw new Error('mediation update failed');
+       throw new Error('mediation update failed')
      }
-   };
+   }
    ```
 
 ## Send message
@@ -315,7 +328,7 @@ import { v4 as uuidv4 } from 'uuid'
 const sendMessage = async (senderDID: string, subjectDID: string, body: string) => {
   const messageId = uuidv4()
 
-  const message: any = {
+  const message = {
     type: 'https://didcomm.org/basicmessage/2.0/message',
     from: senderDID,
     to: [subjectDID],
@@ -374,7 +387,7 @@ const receiveMessages = async (did: string) => {
 const markMessageAsRead = async (did: any, messageIdList: string[]) => {
   const MESSAGES_RECEIVED_MESSAGE_TYPE = 'https://didcomm.org/messagepickup/3.0/messages-received'
 
-  const messagesRequestMessage: IDIDCommMessage = {
+  const messagesRequestMessage = {
     id: uuidv4(),
     type: MESSAGES_RECEIVED_MESSAGE_TYPE,
     to: [mediatorDID],
