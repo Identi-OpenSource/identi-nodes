@@ -9,6 +9,7 @@
     "secret": "yarn veramo config create-secret-key"
   },
   "dependencies": {
+    "@identi-opensource/lacchain": "0.1.0",
     "@veramo/cli": "6.0.0"
   }
 }

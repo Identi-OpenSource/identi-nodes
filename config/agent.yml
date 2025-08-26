@@ -3,7 +3,8 @@ version: 3.0
 constants:
   baseUrl:
     $env: BASE_URL
-  port: 3338
+  port:
+    $env: PORT
   apiName:
     $env: API_NAME
   apiVersion:
@@ -20,6 +21,16 @@ constants:
     $env: CELO_DID_REGISTRY_ADDRESS
   databaseUrl:
     $env: DATABASE_URL
+  lacchainNodeAddress:
+    $env: LACCHAIN_NODE_ADDRESS
+  lacchainDIDRegistryAddress:
+    $env: LACCHAIN_DID_REGISTRY_ADDRESS
+  lacchainRpcUrl:
+    $env: LACCHAIN_RPC_URL
+  lacchainExpiration:
+    $env: LACCHAIN_EXPIRATION
+  lacchainPublicKeyDirectoryBasePath:
+    $env: LACCHAIN_PUBLIC_KEY_DIRECTORY_BASE_PATH
   methods:
     # - keyManagerGetKeyManagementSystems
     - keyManagerCreate
@@ -75,6 +86,14 @@ constants:
     - createSelectiveDisclosureRequest
     - getVerifiableCredentialsForSdr
     - validatePresentationAgainstSdr
+
+    - lacchainCredentialDeploy
+    - lacchainCredentialGrantRole
+    - lacchainCredentialRevokeRole
+    - lacchainCredentialCheckRole
+    - lacchainCredentialRegisterCredential
+    - lacchainCredentialVerifyCredential
+    - lacchainVerifyAddress
 
 # Data bases
 dbConnection:
@@ -192,6 +211,8 @@ didResolver:
               $ref: /ethr-did-resolver
             web:
               $ref: /web-did-resolver
+            lac:
+              $ref: /did-lac-resolver
 
 ethr-did-resolver:
   $require: ethr-did-resolver?t=function&p=/ethr#getResolver
@@ -206,6 +227,19 @@ ethr-did-resolver:
 web-did-resolver:
   $require: web-did-resolver?t=function&p=/web#getResolver
 
+did-lac-resolver:
+  $require: '@identi-opensource/lacchain?t=function&p=/lac#getResolver'
+  $args:
+    - registry: '0xAB00e74C1b0A2313f552E869E6d55B5CdA31aFfe'
+      networks:
+        - name: main
+          registry:
+            $ref: /constants/lacchainDIDRegistryAddress
+          nodeAddress:
+            $ref: /constants/lacchainNodeAddress
+          rpcUrl:
+            $ref: /constants/lacchainRpcUrl
+
 # Key Manager
 keyManager:
   $require: '@veramo/key-manager#KeyManager'
@@ -217,6 +251,15 @@ keyManager:
       kms:
         local:
           $require: '@veramo/kms-local#KeyManagementSystem'
+          $args:
+            - $require: '@veramo/data-store#PrivateKeyStore'
+              $args:
+                - $ref: /dbConnection
+                - $require: '@veramo/kms-local#SecretBox'
+                  $args:
+                    - $ref: /constants/secretKey
+        lacchain:
+          $require: '@identi-opensource/lacchain#KeyManagementSystem'
           $args:
             - $require: '@veramo/data-store#PrivateKeyStore'
               $args:
@@ -256,6 +299,20 @@ didManager:
           $require: '@veramo/did-provider-web#WebDIDProvider'
           $args:
             - defaultKms: local
+        did:lac:main:
+          $require: '@identi-opensource/lacchain#LacDIDProvider'
+          $args:
+            - defaultKms: lacchain
+              networks:
+                - name: main
+                  rpcUrl:
+                    $ref: /constants/lacchainRpcUrl
+                  registry:
+                    $ref: /constants/lacchainDIDRegistryAddress
+                  nodeAddress:
+                    $ref: /constants/lacchainNodeAddress
+                  expirationTime:
+                    $ref: /constants/lacchainExpiration
 
 didDiscovery:
   $require: '@veramo/did-discovery#DIDDiscovery'
@@ -276,6 +333,29 @@ credentialIssuerLD:
         - $require: '@veramo/credential-ld?t=object#LdDefaultContexts'
         - $require: '@transmute/credentials-context?t=object#contexts'
         #  others should be included here
+
+LacchainCredentialPlugin:
+  $require: '@identi-opensource/lacchain#LacchainCredentialPlugin'
+  $args:
+    - keyStore:
+        $require: '@veramo/data-store#PrivateKeyStore'
+        $args:
+          - $ref: /dbConnection
+          - $require: '@veramo/kms-local#SecretBox'
+            $args:
+              - $ref: /constants/secretKey
+      nodeAddress:
+        $ref: /constants/lacchainNodeAddress
+      rpcUrl:
+        $ref: /constants/lacchainRpcUrl
+      expiration:
+        $ref: /constants/lacchainExpiration
+
+LacchainPublicKeyDirectoryPlugin:
+  $require: '@identi-opensource/lacchain#LacchainPublicKeyDirectoryPlugin'
+  $args:
+    - basePath:
+        $ref: /constants/lacchainPublicKeyDirectoryBasePath
 
 # Agent
 agent:
@@ -299,3 +379,5 @@ agent:
         - $require: '@veramo/data-store#DataStoreORM'
           $args:
             - $ref: /dbConnection
+        - $ref: /LacchainCredentialPlugin
+        - $ref: /LacchainPublicKeyDirectoryPlugin
