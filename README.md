@@ -1,4 +1,4 @@
-# Identi Agent
+# Identi Node
 
 This repository contains the source code for the IDENTI Node.
 
